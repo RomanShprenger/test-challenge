@@ -21,7 +21,31 @@ type Metadata = {
  * @param {string} query - The search query string
  * @returns {Metadata[]} - An array of Metadata objects that match the given search query
  */
+
+function noSpecial(arr) {
+  return arr.filter(item => item).map(item => {
+    const str = Array.isArray(item) ? item.join(",") : item;
+    return str.replace(/[^A-z\s\d][\\\^]?/g, "").toLowerCase();
+  });
+}
+
 export default function filterMetadata(metadata, query) {
-  // TODO: delete and replace this with your code
-  return metadata;
+  // If metadata isn't array, it's not correct value or empty value, so return []
+  if (!Array.isArray(metadata)) {
+    return [];
+  }
+  // If query is empty, return all metadata
+  if (!query) {
+    return metadata;
+  }
+
+  // Break multiple words and remove special chars
+  const noSpecialQuery = noSpecial(query.replace(/-/g, " ").split(" "));
+
+  let filteredData = metadata.filter(dataItem => {
+    const strDataItemValues = noSpecial(Object.values(dataItem)).join(" ");
+    return noSpecialQuery.some(queryItem => strDataItemValues.indexOf(queryItem) > -1);
+  });
+
+  return filteredData;
 }
